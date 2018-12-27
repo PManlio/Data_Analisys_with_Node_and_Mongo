@@ -5,8 +5,8 @@ function random(low, high){
     return Math.random()*(high - low) + low;
 }
 
-// con questo file, inseriamo delle call che vengono effettuate con ridondanza maggiore
-// e alcune con latency maggiore
+// with this file you can insert some of what should be the most used calls from your virtual users
+// and others with major latency.
 
 MongoClient.connect(db.url, function(err, database){
     if(err) throw err;
