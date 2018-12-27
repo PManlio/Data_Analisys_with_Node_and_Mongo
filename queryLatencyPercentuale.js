@@ -1,73 +1,64 @@
 var MongoClient = require('mongodb').MongoClient,
     db = require('./db'),
-    latency, totaldocs, percentage;
+    totaldocs, lat400, lat200, latavg;
 
-MongoClient.connect(db.url, (err, database) => {
-    
+MongoClient.connect(db.url, (err, database)=>{
     if(err) throw err;
 
-    function noDocs(){
-        database.db('tesi').collection('tesiCollection').countDocuments({}, (err, res) => {
-            if(err) throw err;
-            else return res;
-        });
-    }
-    function CalculatePercentageGT(lat){
-        return new Promise(() => {
-            database.db('tesi').collection('tesiCollection').countDocuments({Time_L : {$gte:lat}}, (err, res) => {
+    function esec(){
+        return new Promise((resolve, reject)=>{
+            database.db('tesi').collection('tesiCollection').countDocuments({}, (err, res)=>{
                 if(err) throw err;
-                latency = res;
+                totaldocs = res;
+                resolve(totaldocs);
             });
+            setTimeout(() => {reject((err)=>{throw err;});}, 2000);
         });
     }
-
-    function CalculatePercentageLT(lat){
-        return new Promise(() => {
-            database.db('tesi').collection('tesiCollection').countDocuments({Time_L : {$lte:lat}}, (err, res) => {
+    esec().then(()=>{
+        return new Promise((resolve, reject) => {
+            database.db('tesi').collection('tesiCollection').countDocuments({Time_L : {$gte:400}}, (err, res)=>{
                 if(err) throw err;
-                latency = res;
+                lat400=res;
+                resolve(lat400);
             });
+            setTimeout(() => {reject((err)=>{throw err;});}, 2000);
         });
-    }
-
-    function CalculatePercentageAVG(infLat, supLat){
-        return new Promise(() => {
-            database.db('tesi').collection('tesiCollection').countDocuments({Time_L : {$gte:infLat, $lte:supLat}}, (err, res) => {
-                if(err) throw err;
-                latency = res;
-            });
-        });
-    }
-
-    CalculatePercentageGT(400)
-    .then(() => { totaldocs = noDocs(); })
-    .then(() => {
-        percentage = ((latency/totaldocs)*100);
-        console.log('\nThe '+percentage+'% of total calls has a latency greater than 400 ms');
-        console.log('\n(number of calls with latency > 400 ms: '+latency+')');
-    })
-    .catch((error) => { throw error });
-
-    CalculatePercentageLT(200)
-    .then(() => { totaldocs = noDocs(); })
-    .then(() => {
-        percentage = ((latency/totaldocs)*100);
-        console.log('\nThe '+percentage+'% of total calls has a latency inferior than 400 ms');
-        console.log('\n(number of calls with latency < 200 ms: '+latency+')');
-    })
-    .catch((error) => { throw error });
-
-    CalculatePercentageAVG(200, 400)
-    .then(() => { totaldocs = noDocs(); })
-    .then(() => {
-        percentage = ((latency/totaldocs)*100);
-        console.log('\nThe '+percentage+'% of total calls has an average latency');
-        console.log('\n(number of calls with latency between 200 ms and 400 ms: '+latency+')');
-    })
-    .catch((error) => { throw error;})
+    }).then(() => {
+        var percentuale = ((lat400/totaldocs)*100);
+        console.log('\nThe '+percentuale+'% of total calls has a latency greater than 400 ms');
+    }).then(()=>{
+        database.close();
+    }).catch((err)=>{throw err;});
 });
 
-
+/*
+function esegui(){
+    openingConnection()
+    .catch((err) => {
+        reject(err);
+    })
+    .then(()=>{
+        console.log('sto entrando nel THEN')
+        percentuale = (lat400/totaldocs)*100;
+        console.log('\necco il risultato: ' + percentuale);
+        database.db('tesi').collection('tesiCollection').countDocuments({}, (err, res) => { 
+            if(err) throw err;
+            totaldocs = res;
+            console.log(totaldocs);
+        });
+        database.db('tesi').collection('tesiCollection').countDocuments({Time_L : {$gte:400}}, (err, res) => {
+            if(err) throw err;
+            lat400 = res;
+            console.log(lat400);
+        });
+    })
+    .then(()=>{
+        console.log('poi entro qui');
+        var percentuale = ((lat400/totaldocs)*100);
+        console.log('\nThe '+percentuale+'% of total calls has a latency greater than 400 ms');
+    });
+}
 /*
 MongoClient.connect(db.url, (err, database) => {
     if(err) throw err;
@@ -121,4 +112,5 @@ MongoClient.connect(db.url, (err, database) => {
         console.log('(chiamate con latenza compresa tra 200 ms e 400 ms: '+latenza+')');
         database.close();
     }, 2000);
-});*/
+});
+*/

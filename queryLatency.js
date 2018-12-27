@@ -1,9 +1,9 @@
 var MongoClient = require('mongodb').MongoClient,
     db = require('./db');
 
-MongoClient.connect(db.url, function(err, database){
+MongoClient.connect(db.url, (err, database) => {
     if(err) throw err;
-    var totaldocs = database.db('tesi').collection('tesiCollection').countDocuments({}, function(err, res){
+    var totaldocs = database.db('tesi').collection('tesiCollection').countDocuments({}, (err, res) => {
         if(err) throw err;
         totaldocs = res;
     });
