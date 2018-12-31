@@ -1,8 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
 var db = require('./db');
 
-//last to fix
-
 var call1,
     call2,
     call3,
@@ -11,56 +9,55 @@ var call1,
     call6,
     call7;
 
-MongoClient.connect(db.url, function(err, database){
+MongoClient.connect(db.url, (err, database) => {
     if(err) throw err;
     var tesiCollection = database.db('tesi').collection('tesiCollection');
+    var calls = [call1, call2, call3, call4, call5, call6, call7];
 
-    tesiCollection.count({OpName:"call1"}, function(err, res){
-        if(err) throw err;
-        console.log(res);
-        call1 = res;
-    });
+    return new Promise((resolve, reject)=>{
+        tesiCollection.count({OpName:"call1"}, function(err, res){
+            if(err) throw err;
+            console.log(res);
+            call1 = res;
+        });
+        tesiCollection.count({OpName:"call2"}, function(err, res){
+            if(err) throw err;
+            console.log(res);
+            call2 = res;
+        });
+        tesiCollection.count({OpName:"call3"}, function(err, res){
+            if(err) throw err;
+            console.log(res);
+            call3 = res;
+        });
+        tesiCollection.count({OpName:"call4"}, function(err, res){
+            if(err) throw err;
+            console.log(res);
+            call4 = res;
+        });    
+        tesiCollection.count({OpName:"call5"}, function(err, res){
+            if(err) throw err;
+            console.log(res);
+            call5 = res;
+        });    
+        tesiCollection.count({OpName:"call6"}, function(err, res){
+            if(err) throw err;
+            console.log(res);
+            call6 = res;
+        });    
+        tesiCollection.count({OpName:"call7"}, function(err, res){
+            if(err) throw err;
+            console.log(res);
+            call7 = res;
+        });
+        resolve(calls);
 
-    tesiCollection.count({OpName:"call2"}, function(err, res){
-        if(err) throw err;
-        console.log(res);
-        call2 = res;
-    });
-
-    tesiCollection.count({OpName:"call3"}, function(err, res){
-        if(err) throw err;
-        console.log(res);
-        call3 = res;
-    });
-
-    tesiCollection.count({OpName:"call4"}, function(err, res){
-        if(err) throw err;
-        console.log(res);
-        call4 = res;
-    });
+        setTimeout(()=>{reject((err)=>{throw err;})}, 5000);
+    }).then(()=>{database.close();});
     
-    tesiCollection.count({OpName:"call5"}, function(err, res){
-        if(err) throw err;
-        console.log(res);
-        call5 = res;
-    });
-    
-    tesiCollection.count({OpName:"call6"}, function(err, res){
-        if(err) throw err;
-        console.log(res);
-        call6 = res;
-    });
-    
-    tesiCollection.count({OpName:"call7"}, function(err, res){
-        if(err) throw err;
-        console.log(res);
-        call7 = res;
-    });
-
-    setTimeout(function after5Seconds(){
-        database.close();
-    }, 5000);
 });
+
+//last to fix
 
 setTimeout(function callCompare(){
     var lngh = Math.max(call1, call2, call3, call4, call5, call6, call7);
