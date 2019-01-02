@@ -81,6 +81,7 @@ MongoClient.connect(db.url, (err, database) => {
 
 //last to fix
 
+//try async/await
 
 function callcompare(){
     return new Promise((resolve, reject)=>{
