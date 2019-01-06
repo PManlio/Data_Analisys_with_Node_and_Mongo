@@ -4,13 +4,13 @@ var db = require('./db');
 var call1,call2,call3,call4,call5,call6,call7;
 
 var calls =[
-    ["call1: " + call1],
-    ["call2: " + call2],
-    ["call3: " + call3],
-    ["call4: " + call4],
-    ["call5: " + call5],
-    ["call6: " + call6],
-    ["call7: " + call7]
+    ["call1", call1],
+    ["call2", call2],
+    ["call3", call3],
+    ["call4", call4],
+    ["call5", call5],
+    ["call6", call6],
+    ["call7", call7]
 ];
 
 function Comparator(a, b) {
@@ -19,16 +19,9 @@ function Comparator(a, b) {
     return 0;
 }
 
-async function connection(){
+var connection = MongoClient.connect(db.url, (err, database) => {
+    if (err) throw err;
     return new Promise((resolve, reject) => {
-        MongoClient.connect(db.url, (err, database) => {
-            if (err) throw err;
-            resolve(database);
-        })
-        setTimeout(()=>{
-            reject(err => {throw err});
-        }, 4000);
-    }).then((database) => {
         database.db('tesi').collection('tesiCollection').count({OpName:"call1"}, function(err, res){
             if(err) throw err;
             console.log(res);
@@ -37,10 +30,10 @@ async function connection(){
         });
         database.db('tesi').collection('tesiCollection').count({OpName:"call2"}, function(err, res){
             if(err) throw err;
-            console.log(res);
+                console.log(res);
             call2 = res;
             calls.call2 = res;
-        });
+            });
         database.db('tesi').collection('tesiCollection').count({OpName:"call3"}, function(err, res){
             if(err) throw err;
             console.log(res);
@@ -71,15 +64,38 @@ async function connection(){
             call7 = res;
             calls.call7 = res;
         });
-        return calls;
-    });
-}
+        resolve(calls);
+        setTimeout(()=>{
+            reject(err => {throw err});
+        }, 4000);
+    })
+        .then(calls => {
+            setTimeout(() => {
+                calls = calls.sort(Comparator);
+                console.log(calls);
+            }, 8000);
+        })
+        .then(() => {
+            setTimeout(() => {
+                var lngh = Math.max(call1, call2, call3, call4, call5, call6, call7);
+                if(call1 == lngh) console.log('call1 è la più richiesta');
+                if(call2 == lngh) console.log('call2 è la più richiesta');
+                if(call3 == lngh) console.log('call3 è la più richiesta');
+                if(call4 == lngh) console.log('call4 è la più richiesta');
+                if(call5 == lngh) console.log('call5 è la più richiesta');
+                if(call6 == lngh) console.log('call6 è la più richiesta');
+                if(call7 == lngh) console.log('call7 è la più richiesta');
+            }, 9000)  
+        })
+        .then(() => {
+            setTimeout(() => {
+                database.close();
+            }, 10000)
+        })
+});
 
 function exec(){
-    connection();
-    setTimeout(()=>{
-        console.log(calls);
-    }, 7000);
+    connection;
 }
 
 exec();
